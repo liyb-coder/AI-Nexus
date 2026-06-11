@@ -242,7 +242,7 @@ function WorkbenchView({
       <header className="h-14 xl:h-16 flex items-center px-5 xl:px-6 glass-panel border-b border-white/40 justify-between shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-lg xl:text-xl font-semibold text-[#1a1c1f] tracking-tight truncate max-w-[300px] xl:max-w-[400px]">
-            {currentQuery || '多 AI 协作工作台'}
+            {currentQuery || 'AI Nexus'}
           </h1>
           {hasResponses && (
             <div className="px-3 py-1 rounded-full bg-white/40 border border-white/60 flex items-center gap-2">
@@ -277,8 +277,8 @@ function WorkbenchView({
         </div>
       </header>
 
-      {/* Workbench Canvas */}
-      <div className="flex-1 p-4 xl:p-6 flex gap-4 xl:gap-6 overflow-hidden min-h-0">
+      {/* Workbench Canvas — pb-28 reserves space for absolute-positioned Console */}
+      <div className="flex-1 p-4 xl:p-6 pb-28 xl:pb-32 flex gap-4 xl:gap-6 overflow-hidden min-h-0">
         {/* Comparison Grid — adaptive layout */}
         <div className="flex-1 min-w-0 overflow-hidden">
           <AnimatePresence mode="popLayout">
