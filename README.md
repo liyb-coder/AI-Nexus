@@ -1,4 +1,4 @@
-# 汇智台 (Hui Zhi Tai)
+# AI Nexus (汇智台)
 
 > **Mac 本地优先的多 AI 协作操作工作台**
 
@@ -28,6 +28,7 @@
 | **SSE 流式输出** | 实时逐字渲染 AI 回答，模拟真实流式体验 |
 | **横向对比** | 多面板并排展示，便于对比不同模型的回答差异 |
 | **文字选中收藏** | 选中任意文字 → 悬浮「加入素材库」按钮，一键收藏 |
+| **全局兜底收藏** | 面板内悬浮按钮未触发时，右侧素材库区域提供备用收藏入口 |
 | **素材库管理** | 右侧面板统一管理所有收藏素材，支持上传附件和粘贴文本 |
 | **评审总结** | 手动触发评审模型对全部素材进行智能总结 |
 | **输出文档** | 将评审结果导出为结构化文档 |
@@ -47,8 +48,8 @@
 
 ```bash
 # 克隆仓库
-git clone <your-repo-url>
-cd huizhitai
+git clone https://github.com/liyb-coder/AI-Nexus.git
+cd AI-Nexus
 
 # 安装依赖
 npm install
@@ -65,9 +66,9 @@ npm run build
 ```
 src/
   components/          # 核心组件
-    AIStreamPanel.tsx      # AI 输出面板（流式渲染 + 文字选中悬浮按钮）
+    AIStreamPanel.tsx      # AI 输出面板（流式渲染 + 文字选中悬浮按钮 + 代码块支持）
     Console.tsx            # 底部药丸形输入栏
-    ReviewPanel.tsx        # 右侧素材库 + 评审 + 输出文档
+    ReviewPanel.tsx        # 右侧素材库 + 评审 + 输出文档 + 全局兜底收藏
     Sidebar.tsx            # 80px 玻璃 Rail 导航
     FullscreenModal.tsx    # 全屏查看面板
     ApprovalModal.tsx      # CLI 操作审批弹窗
@@ -116,9 +117,16 @@ src/
 | 1 | 1 | - |
 | 2 | 2 | - |
 | 3 | 3 | - |
-| 4 | 2×2 | default |
-| 5-6 | 3×2 | `xl:` |
-| 7-8 | 4×2 | `2xl:` |
+| 4 | 2x2 | default |
+| 5-6 | 3x2 | `xl:` |
+| 7-8 | 4x2 | `2xl:` |
+
+## 产品文档
+
+完整产品方案（PRD / 技术架构 / 测试用例 / 项目规划）：
+
+- [AI Nexus 完整产品方案 PDF](docs/AI_Nexus_完整产品方案.pdf)
+- 在线预览：https://5dzlkut4r6jr6.ok.kimi.link
 
 ## 未来规划
 
