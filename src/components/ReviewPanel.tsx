@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
 import {
@@ -12,6 +12,7 @@ import {
   Upload,
   ClipboardPaste,
   X,
+  Highlighter,
 } from 'lucide-react';
 
 const reviewPreset = `## 评审报告
@@ -128,6 +129,63 @@ export function ReviewPanel() {
   const [pasteText, setPasteText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Global text selection fallback — when AI panel floating button doesn't trigger,
+  // show a button in ReviewPanel to add selected text to library
+  const [globalSelection, setGlobalSelection] = useState<{ text: string; visible: boolean }>({ text: '', visible: false });
+  const selectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      // Delay to let selection settle
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+      selectionTimerRef.current = setTimeout(() => {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) {
+          setGlobalSelection({ text: '', visible: false });
+          return;
+        }
+        const text = sel.toString().trim();
+        if (text.length >= 1) {
+          setGlobalSelection({ text, visible: true });
+        } else {
+          setGlobalSelection({ text: '', visible: false });
+        }
+      }, 80);
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't clear if clicking the global selection button
+      if (target.closest('[data-global-selection-btn]')) return;
+      // Don't clear if clicking inside the add menu
+      if (target.closest('[data-add-menu]')) return;
+      // Defer clearing — let mouseup re-evaluate
+      setGlobalSelection((prev) => ({ ...prev, visible: false }));
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousedown', handleMouseDown);
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+    };
+  }, []);
+
+  const addGlobalSelectionToLibrary = useCallback(() => {
+    if (!globalSelection.text) return;
+    addMaterial({
+      id: `mat_global_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      content: globalSelection.text,
+      sourceModel: '手动选中',
+      sourceModelColor: '#5e5e61',
+      sourceResponseId: 'global-selection',
+      timestamp: Date.now(),
+    });
+    setGlobalSelection({ text: '', visible: false });
+    window.getSelection()?.removeAllRanges();
+  }, [globalSelection.text, addMaterial]);
+
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -180,7 +238,7 @@ export function ReviewPanel() {
                 {materials.length}
               </span>
             )}
-            <div className="relative">
+            <div className="relative" data-add-menu>
               <button
                 onClick={() => setShowAddMenu(!showAddMenu)}
                 className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/40 transition-colors"
@@ -253,12 +311,41 @@ export function ReviewPanel() {
             </div>
           </div>
         </div>
+
+        {/* Global selection fallback — floating add button */}
+        <AnimatePresence>
+          {globalSelection.visible && globalSelection.text && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              data-global-selection-btn
+              className="mb-3 glass-panel-strong rounded-xl border border-white/60 shadow-lg overflow-hidden"
+            >
+              <div className="px-3 py-2.5 flex items-center gap-2">
+                <Highlighter className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <p className="flex-1 text-[10px] text-[#5e5e61] truncate font-mono leading-relaxed">
+                  {globalSelection.text.slice(0, 60)}{globalSelection.text.length > 60 ? '...' : ''}
+                </p>
+              </div>
+              <button
+                onClick={addGlobalSelectionToLibrary}
+                className="w-full py-2 bg-[#1a1c1f] hover:bg-black/80 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-[0.98]"
+              >
+                <BookmarkPlus className="w-3.5 h-3.5" />
+                加入素材库
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="flex-1 space-y-2 overflow-y-auto scroll-hide min-h-0">
-          {materials.length === 0 && (
+          {materials.length === 0 && !globalSelection.visible && (
             <div className="text-center py-8">
               <BookmarkPlus className="w-6 h-6 text-[#5e5e61]/30 mx-auto mb-2" />
               <p className="text-[11px] text-[#5e5e61]/50">从 AI 面板中选中文字</p>
-              <p className="text-[11px] text-[#5e5e61]/50">点击收藏加入素材库</p>
+              <p className="text-[11px] text-[#5e5e61]/50">或选中后点击上方按钮</p>
             </div>
           )}
           <AnimatePresence>
