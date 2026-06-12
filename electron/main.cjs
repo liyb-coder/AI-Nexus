@@ -1,171 +1,165 @@
-/**
- * AI Nexus — Electron Main Process
- *
- * Responsibilities:
- * 1. Start the Node.js backend server as a child process
- * 2. Create the main BrowserWindow loading the React frontend
- * 3. Handle app lifecycle (dock, tray, quit)
- */
-
-const { app, BrowserWindow, shell, dialog } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
-const http = require('http');
+const fs = require('fs');
 
-// ===== Configuration =====
-const BACKEND_PORT = 5173;
-const FRONTEND_PORT = 3000;
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+// ── Single instance lock ──
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+  return;
+}
 
 let mainWindow = null;
 let backendProcess = null;
+const isDev = !app.isPackaged;
 
-// ===== Backend Process Management =====
-
+// ── Start backend server ──
 function startBackend() {
-  const backendScript = path.join(__dirname, '..', 'server', 'src', 'index.ts');
+  const backendEntry = isDev
+    ? path.join(__dirname, '..', 'server', 'dist', 'index.js')
+    : path.join(process.resourcesPath, 'server', 'dist', 'index.js');
 
-  if (isDev) {
-    // Dev: run with tsx
-    backendProcess = spawn('npx', ['tsx', backendScript], {
-      cwd: path.join(__dirname, '..', 'server'),
-      env: { ...process.env, PORT: String(BACKEND_PORT) },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-  } else {
-    // Prod: run compiled JS
-    const backendDist = path.join(process.resourcesPath, 'server', 'index.js');
-    backendProcess = spawn(process.execPath, [backendDist], {
-      env: { ...process.env, PORT: String(BACKEND_PORT) },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+  console.log('[main] Backend path:', backendEntry);
+
+  if (!fs.existsSync(backendEntry)) {
+    const msg = isDev
+      ? '后端未编译。请先运行: cd server && npm run build'
+      : '后端文件缺失，请重新安装应用。';
+    dialog.showErrorBox('启动失败', msg);
+    app.quit();
+    return;
   }
 
-  backendProcess.stdout?.on('data', (data) => {
-    console.log(`[backend] ${data.toString().trim()}`);
-  });
+  try {
+    backendProcess = spawn(process.execPath, [backendEntry], {
+      cwd: path.dirname(backendEntry),
+      env: { ...process.env, NODE_ENV: isDev ? 'development' : 'production' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-  backendProcess.stderr?.on('data', (data) => {
-    console.error(`[backend:err] ${data.toString().trim()}`);
-  });
+    backendProcess.stdout.on('data', (data) => {
+      console.log('[backend]', data.toString().trim());
+    });
 
-  backendProcess.on('exit', (code) => {
-    console.log(`[backend] Exited with code ${code}`);
-    backendProcess = null;
-  });
+    backendProcess.stderr.on('data', (data) => {
+      console.error('[backend]', data.toString().trim());
+    });
+
+    backendProcess.on('error', (err) => {
+      console.error('[main] Backend spawn error:', err.message);
+      dialog.showErrorBox(
+        '启动失败',
+        `后端服务无法启动: ${err.message}\n\n请确保已安装依赖: cd server && npm install`
+      );
+      app.quit();
+    });
+
+    backendProcess.on('exit', (code) => {
+      console.log('[main] Backend exited with code:', code);
+      backendProcess = null;
+    });
+  } catch (err) {
+    dialog.showErrorBox('启动失败', `无法启动后端: ${err.message}`);
+    app.quit();
+  }
 }
 
-function waitForBackend(maxRetries = 30, interval = 500) {
-  return new Promise((resolve, reject) => {
-    let retries = 0;
-    const check = () => {
-      http.get(`http://127.0.0.1:${BACKEND_PORT}/api/health`, (res) => {
-        if (res.statusCode === 200) {
-          resolve();
-        } else {
-          retry();
-        }
-      }).on('error', () => {
-        retry();
-      });
-    };
+// ── Wait for backend to be ready ──
+function waitForBackend(retries = 10) {
+  const http = require('http');
+  let attempts = 0;
 
-    const retry = () => {
-      retries++;
-      if (retries >= maxRetries) {
-        reject(new Error('Backend failed to start'));
-        return;
+  function check() {
+    attempts++;
+    const req = http.get('http://127.0.0.1:5173/api/health', (res) => {
+      if (res.statusCode === 200) {
+        console.log('[main] Backend ready');
+        createWindow();
+      } else if (attempts < retries) {
+        setTimeout(check, 500);
+      } else {
+        dialog.showErrorBox('启动超时', '后端服务启动超时，请重试。');
+        app.quit();
       }
-      setTimeout(check, interval);
-    };
-
-    check();
-  });
-}
-
-function stopBackend() {
-  if (backendProcess) {
-    backendProcess.kill('SIGTERM');
-    backendProcess = null;
+    });
+    req.on('error', () => {
+      if (attempts < retries) {
+        setTimeout(check, 500);
+      } else {
+        dialog.showErrorBox('启动超时', '后端服务无响应。请确认已安装依赖: cd server && npm install');
+        app.quit();
+      }
+    });
+    req.setTimeout(2000, () => {
+      req.destroy();
+      if (attempts < retries) {
+        setTimeout(check, 500);
+      }
+    });
   }
+
+  check();
 }
 
-// ===== Window Management =====
-
+// ── Create main window ──
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
-    minWidth: 1024,
-    minHeight: 680,
-    title: 'AI Nexus — 汇智台',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 16, y: 16 },
-    vibrancy: 'fullscreen-ui',
-    visualEffectState: 'active',
-    backgroundColor: '#00000000',
+    minWidth: 900,
+    minHeight: 600,
+    title: 'AI Nexus 汇智',
+    show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  if (isDev) {
-    mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
-    // Open DevTools in dev mode
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  } else {
-    // Load built frontend
-    mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
-  }
+  // Load frontend
+  const frontendPath = isDev
+    ? 'http://localhost:3000'
+    : `file://${path.join(__dirname, '..', 'dist', 'index.html')}`;
+
+  console.log('[main] Loading:', frontendPath);
+  mainWindow.loadURL(frontendPath);
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-
-  // Open external links in browser
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
-  });
 }
 
-// ===== App Lifecycle =====
-
-app.whenReady().then(async () => {
-  console.log('[electron] Starting AI Nexus...');
-
-  // 1. Start backend
-  startBackend();
-
-  // 2. Wait for backend to be ready
-  try {
-    await waitForBackend();
-    console.log('[electron] Backend is ready');
-  } catch (err) {
-    console.error('[electron] Backend startup failed:', err.message);
-    dialog.showErrorBox('启动失败', '后端服务未能启动，请检查是否已安装依赖。\n\ncd server && npm install');
-    app.quit();
-    return;
+// ── App lifecycle ──
+app.on('second-instance', () => {
+  // Someone tried to run a second instance — focus existing window
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
   }
+});
 
-  // 3. Create window
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+app.whenReady().then(() => {
+  startBackend();
+  // Give backend a moment to start, then wait for health check
+  setTimeout(waitForBackend, 1000);
 });
 
 app.on('window-all-closed', () => {
-  stopBackend();
-  if (process.platform !== 'darwin') {
-    app.quit();
+  if (backendProcess) {
+    backendProcess.kill('SIGTERM');
+    backendProcess = null;
   }
+  app.quit();
 });
 
 app.on('before-quit', () => {
-  stopBackend();
+  if (backendProcess) {
+    backendProcess.kill('SIGTERM');
+    backendProcess = null;
+  }
 });
