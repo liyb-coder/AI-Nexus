@@ -1,16 +1,14 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { getDatabase, closeDatabase } from '../src/db/database.js';
 
-// Clean up after ALL tests in this file run
-afterAll(() => {
-  closeDatabase();
-});
-import { getDatabase } from '../src/db/database.js';
-
 describe('Database', () => {
 
-  it('should initialize and create tables', () => {
-    const db = getDatabase();
+  afterAll(() => {
+    closeDatabase();
+  });
+
+  it('should initialize and create tables', async () => {
+    const db = await getDatabase();
 
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
@@ -28,8 +26,8 @@ describe('Database', () => {
     expect(tableNames).toContain('audit_log');
   });
 
-  it('should have default models seeded', () => {
-    const db = getDatabase();
+  it('should have default models seeded', async () => {
+    const db = await getDatabase();
     const models = db.prepare('SELECT * FROM models').all() as { id: string; name: string }[];
     expect(models.length).toBeGreaterThanOrEqual(5);
     expect(models.find((m) => m.id === 'kimi')).toBeTruthy();
@@ -37,14 +35,14 @@ describe('Database', () => {
     expect(models.find((m) => m.id === 'deepseek')).toBeTruthy();
   });
 
-  it('should have default skills seeded', () => {
-    const db = getDatabase();
+  it('should have default skills seeded', async () => {
+    const db = await getDatabase();
     const skills = db.prepare('SELECT * FROM skills').all() as { id: string; name: string }[];
     expect(skills.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('should support CRUD on models', () => {
-    const db = getDatabase();
+  it('should support CRUD on models', async () => {
+    const db = await getDatabase();
 
     // Read
     const kimi = db.prepare('SELECT * FROM models WHERE id = ?').get('kimi') as { id: string; enabled: number };
@@ -60,8 +58,8 @@ describe('Database', () => {
     db.prepare('UPDATE models SET enabled = 1, updated_at = ? WHERE id = ?').run(Date.now(), 'kimi');
   });
 
-  it('should cascade delete task events when task is deleted', () => {
-    const db = getDatabase();
+  it('should cascade delete task events when task is deleted', async () => {
+    const db = await getDatabase();
 
     db.prepare("INSERT INTO tasks (id, title, query, status, model_ids, model_names) VALUES ('test_task', 'Test', 'test', 'in_progress', '[]', '[]')").run();
     db.prepare("INSERT INTO task_events (id, task_id, type, description, timestamp) VALUES ('test_evt', 'test_task', 'query', 'test', ?)").run(Date.now());
