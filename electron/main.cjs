@@ -32,7 +32,7 @@ function startBackend() {
   }
 
   try {
-    backendProcess = spawn(process.execPath, [backendEntry], {
+    backendProcess = spawn('node', [backendEntry], {
       cwd: path.dirname(backendEntry),
       env: { ...process.env, NODE_ENV: isDev ? 'development' : 'production' },
       stdio: ['ignore', 'pipe', 'pipe'],
