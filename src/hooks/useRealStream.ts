@@ -57,38 +57,37 @@ export function useRealStream() {
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
+          const s = useAppStore.getState();
 
           switch (msg.type) {
             case 'stream_chunk': {
               const { modelId, delta } = msg.payload;
-              const responses = store.responses.filter(
+              const responses = s.responses.filter(
                 (r) => r.modelId === modelId && (r.status === 'loading' || r.status === 'streaming')
               );
               responses.forEach((r) => {
-                if (r.status === 'loading') store.setResponseStatus(r.id, 'streaming');
-                store.updateResponseContent(r.id, r.content + delta);
+                const latest = useAppStore.getState().responses.find(rr => rr.id === r.id);
+                if (latest?.status === 'loading') s.setResponseStatus(r.id, 'streaming');
+                s.updateResponseContent(r.id, (latest?.content || r.content) + delta);
               });
               break;
             }
             case 'stream_end': {
               const { modelId, content, tokensUsed, latency } = msg.payload;
-              const responses = store.responses.filter((r) => r.modelId === modelId && r.status === 'streaming');
+              const responses = s.responses.filter((r) => r.modelId === modelId && r.status === 'streaming');
               responses.forEach((r) => {
-                const full = content as string;
-                store.setResponseStatus(r.id, 'done');
-                store.setResponseMetrics(r.id, latency as number, tokensUsed as number);
-                if (!r.fullContent) {
-                  store.updateResponseContent(r.id, full);
-                }
+                s.setResponseStatus(r.id, 'done');
+                s.setResponseMetrics(r.id, latency as number, tokensUsed as number);
+                if (!r.fullContent) s.updateResponseContent(r.id, content as string);
               });
               break;
             }
             case 'stream_error': {
               const { modelId, error } = msg.payload;
-              const responses = store.responses.filter((r) => r.modelId === modelId);
+              const responses = s.responses.filter((r) => r.modelId === modelId);
               responses.forEach((r) => {
-                store.setResponseStatus(r.id, 'error');
-                store.updateResponseContent(r.id, `❌ ${error}`);
+                s.setResponseStatus(r.id, 'error');
+                s.updateResponseContent(r.id, `❌ ${error}`);
               });
               break;
             }
