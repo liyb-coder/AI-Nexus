@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Nexus 汇智 — 产品方案</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#2d2b3a;background:#f1eef6;-webkit-font-smoothing:antialiased}
+code,pre,.font-mono{font-family:'JetBrains Mono','SF Mono',monospace}
+::selection{background:rgba(144,144,224,0.25)}
+
+/* ===== Glass System (matches product exactly) ===== */
+.glass{background:rgba(241,238,246,0.52);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(220,220,242,0.5);box-shadow:0 8px 32px 0 rgba(100,90,160,0.06)}
+.glass-strong{background:rgba(241,238,246,0.7);backdrop-filter:blur(48px);-webkit-backdrop-filter:blur(48px);border:1px solid rgba(220,220,242,0.65);box-shadow:0 8px 32px 0 rgba(100,90,160,0.1)}
+.glass-dark{background:rgba(45,43,58,0.6);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.1)}
+.glass-icon{background:rgba(241,238,246,0.5);backdrop-filter:blur(12px);border:1px solid rgba(220,220,242,0.6);box-shadow:0 2px 8px rgba(100,90,160,0.08)}
+
+/* Brand */
+.brand-gradient{background:linear-gradient(135deg,#f1eef6 0%,#e8e4f3 40%,#dcd8f0 70%,#f1eef6 100%)}
+.accent-gradient{background:linear-gradient(135deg,#9090e0,#a090d8)}
+.text-gradient{background:linear-gradient(135deg,#6b6bbd,#9090e0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Animations */
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pulse-soft{0%,100%{opacity:0.5}50%{opacity:1}}
+@keyframes typing{from{width:0}to{width:100%}}
+
+.animate-up{animation:slideUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+.animate-fade{animation:fadeIn 0.8s ease forwards;opacity:0}
+.d1{animation-delay:0.1s}.d2{animation-delay:0.2s}.d3{animation-delay:0.3s}.d4{animation-delay:0.4s}.d5{animation-delay:0.5s}
+
+/* Card hover */
+.card-hover{transition:all 0.35s cubic-bezier(0.16,1,0.3,1)}
+.card-hover:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(100,90,160,0.12);border-color:rgba(144,144,224,0.4)}
+
+/* Nav dots */
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(45,43,58,0.15);transition:all 0.3s;cursor:pointer}
+.nav-dot:hover{background:rgba(45,43,58,0.35)}
+.nav-dot.active{background:#9090e0;box-shadow:0 0 0 3px rgba(144,144,224,0.2);transform:scale(1.15)}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.02em}
+.tag-blue{background:rgba(144,144,224,0.12);color:#6b6bbd}
+.tag-green{background:rgba(94,139,126,0.12);color:#5e8b7e}
+.tag-amber{background:rgba(201,149,106,0.12);color:#c9956a}
+.tag-purple{background:rgba(155,141,166,0.12);color:#9b8da6}
+.tag-red{background:rgba(220,100,100,0.1);color:#b85a5a}
+
+/* Mock window */
+.mock-win{border-radius:16px;overflow:hidden;border:1px solid rgba(220,220,242,0.6);box-shadow:0 24px 64px rgba(100,90,160,0.12),0 0 0 1px rgba(220,220,242,0.4)}
+.mock-bar{height:36px;background:rgba(241,238,246,0.9);display:flex;align-items:center;padding:0 14px;gap:6px;border-bottom:1px solid rgba(220,220,242,0.4)}
+
+/* Risk levels */
+.risk-read{border-color:rgba(94,139,126,0.3);background:rgba(94,139,126,0.06)}
+.risk-write{border-color:rgba(144,144,224,0.3);background:rgba(144,144,224,0.06)}
+.risk-exec{border-color:rgba(201,149,106,0.3);background:rgba(201,149,106,0.08)}
+.risk-network{border-color:rgba(201,120,80,0.3);background:rgba(201,120,80,0.08)}
+.risk-admin{border-color:rgba(220,100,100,0.3);background:rgba(220,100,100,0.08)}
+
+/* Detector card */
+.detector-item{padding:14px 18px;border-radius:12px;border:1px solid rgba(220,220,242,0.4);background:rgba(255,255,255,0.4);transition:all 0.25s}
+.detector-item:hover{border-color:rgba(144,144,224,0.4);background:rgba(255,255,255,0.65);box-shadow:0 4px 16px rgba(100,90,160,0.06)}
+
+/* Code block */
+.code-block{background:#2d2b3a;color:#dcd8f0;border-radius:12px;padding:18px 22px;font-size:12.5px;line-height:1.75;overflow-x:auto}
+.code-block .k{color:#c9956a}
+.code-block .s{color:#8ecfb0}
+.code-block .c{color:#7a7790;font-style:italic}
+.code-block .f{color:#90b0e0}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{padding:10px 14px;text-align:left;font-weight:600;color:#7a7790;border-bottom:1.5px solid rgba(220,220,242,0.6);background:rgba(255,255,255,0.3)}
+.data-table td{padding:10px 14px;border-bottom:1px solid rgba(220,220,242,0.3);color:#4a4860}
+.data-table tr:hover td{background:rgba(144,144,224,0.04)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(45,43,58,0.15);border-radius:3px}
+
+/* Responsive */
+@media(max-width:1024px){.nav-sidebar{display:none!important}}
+</style>
+</head>
+<body class="brand-gradient min-h-screen">
+
+<!-- ===== Sidebar Nav ===== -->
+<nav class="nav-sidebar fixed left-5 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col items-center gap-4">
+    <div class="nav-dot active" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'})" title="概览"></div>
+    <div class="nav-dot" onclick="document.getElementById('position').scrollIntoView({behavior:'smooth'})" title="定位"></div>
+    <div class="nav-dot" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})" title="功能"></div>
+    <div class="nav-dot" onclick="document.getElementById('auth').scrollIntoView({behavior:'smooth'})" title="Auth检测"></div>
+    <div class="nav-dot" onclick="document.getElementById('cli').scrollIntoView({behavior:'smooth'})" title="CLI安全"></div>
+    <div class="nav-dot" onclick="document.getElementById('architecture').scrollIntoView({behavior:'smooth'})" title="架构"></div>
+    <div class="nav-dot" onclick="document.getElementById('tech').scrollIntoView({behavior:'smooth'})" title="技术栈"></div>
+    <div class="nav-dot" onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})" title="路线图"></div>
+</nav>
+
+<script>
+const sections=['hero','position','features','auth','cli','architecture','tech','roadmap'];
+const dots=document.querySelectorAll('.nav-dot');
+window.addEventListener('scroll',()=>{
+    let current='';
+    sections.forEach(s=>{const el=document.getElementById(s);if(el&&scrollY>=el.offsetTop-250)current=s});
+    dots.forEach((d,i)=>d.classList.toggle('active',sections[i]===current));
+});
+</script>
+
+<!-- ===== HERO ===== -->
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Soft ambient blobs -->
+    <div class="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-40" style="background:radial-gradient(circle,rgba(144,144,224,0.2),transparent 70%);filter:blur(60px)"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-30" style="background:radial-gradient(circle,rgba(155,141,166,0.25),transparent 70%);filter:blur(60px)"></div>
+    <div class="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full opacity-20" style="background:radial-gradient(circle,rgba(201,149,106,0.2),transparent 70%);filter:blur(50px)"></div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+        <!-- Badge -->
+        <div class="animate-up inline-flex items-center gap-2 px-4 py-2 glass rounded-full mb-8">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#5e8b7e]" style="animation:pulse-soft 2s infinite"></span>
+            <span class="text-xs font-medium text-[#6b6bbd]">Mac 本地优先的多 AI 协作操作工作台</span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="animate-up d1 text-5xl lg:text-7xl font-black tracking-tight mb-4">
+            <span class="text-[#2d2b3a]">AI Nexus</span>
+            <span class="text-gradient text-4xl lg:text-6xl ml-3">汇智</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="animate-up d2 text-base lg:text-lg text-[#7a7790] max-w-xl mx-auto mb-10 leading-relaxed">
+            一次输入，同时调用多个 AI 模型，横向对比回答，<br class="hidden lg:block">
+            收集素材，评审总结，本地 CLI 安全审批。
+        </p>
+
+        <!-- Tags -->
+        <div class="animate-up d3 flex flex-wrap justify-center gap-2 mb-14">
+            <span class="tag tag-blue">React 19</span>
+            <span class="tag tag-green">Node.js + Express</span>
+            <span class="tag tag-amber">Electron 42</span>
+            <span class="tag tag-purple">SQLite</span>
+            <span class="tag tag-blue">WebSocket</span>
+            <span class="tag tag-green">OpenAI SDK</span>
+            <span class="tag tag-purple">Anthropic SDK</span>
+        </div>
+
+        <!-- Mock UI -->
+        <div class="animate-up d4 max-w-3xl mx-auto">
+            <div class="mock-win">
+                <div class="mock-bar">
+                    <div class="w-3 h-3 rounded-full bg-[#e0a0a0]"></div>
+                    <div class="w-3 h-3 rounded-full bg-[#d4c8a0]"></div>
+                    <div class="w-3 h-3 rounded-full bg-[#a0c8a0]"></div>
+                    <span class="ml-3 text-[10px] text-[#a098b8]">AI Nexus — 多 AI 协作工作台</span>
+                </div>
+                <div class="p-5" style="background:linear-gradient(180deg,#f1eef6,#e8e4f3)">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg accent-gradient flex items-center justify-center text-white font-bold text-xs">AI</div>
+                            <span class="text-sm font-semibold text-[#2d2b3a]">AI Nexus</span>
+                        </div>
+                        <span class="tag tag-green text-[10px]">5 个 AI 活跃中</span>
+                    </div>
+                    <!-- Grid -->
+                    <div class="grid grid-cols-2 gap-2.5 mb-4">
+                        <div class="glass rounded-xl p-3.5">
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <div class="w-6 h-6 rounded-md bg-[#8BA4B8]/20 flex items-center justify-center text-[#8BA4B8] text-[10px] font-bold">K</div>
+                                <span class="text-[11px] font-medium text-[#2d2b3a]">Kimi</span>
+                                <span class="ml-auto text-[9px] text-[#5e8b7e]">● 已完成</span>
+                            </div>
+                            <div class="space-y-1.5"><div class="h-1.5 bg-[#dcd8f0] rounded w-full"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-4/5"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-3/5"></div></div>
+                        </div>
+                        <div class="glass rounded-xl p-3.5">
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <div class="w-6 h-6 rounded-md bg-[#C9956A]/20 flex items-center justify-center text-[#C9956A] text-[10px] font-bold">C</div>
+                                <span class="text-[11px] font-medium text-[#2d2b3a]">Claude</span>
+                                <span class="ml-auto text-[9px] text-[#5e8b7e]">● 已完成</span>
+                            </div>
+                            <div class="space-y-1.5"><div class="h-1.5 bg-[#dcd8f0] rounded w-full"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-3/4"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-2/3"></div></div>
+                        </div>
+                        <div class="glass rounded-xl p-3.5">
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <div class="w-6 h-6 rounded-md bg-[#5E8B7E]/20 flex items-center justify-center text-[#5E8B7E] text-[10px] font-bold">X</div>
+                                <span class="text-[11px] font-medium text-[#2d2b3a]">Codex</span>
+                                <span class="ml-auto text-[9px] text-[#9090e0] animate-pulse">● 输出中</span>
+                            </div>
+                            <div class="space-y-1.5"><div class="h-1.5 bg-[#dcd8f0] rounded w-full"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-5/6"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-1/2"></div></div>
+                        </div>
+                        <div class="glass rounded-xl p-3.5">
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <div class="w-6 h-6 rounded-md bg-[#9B8DA6]/20 flex items-center justify-center text-[#9B8DA6] text-[10px] font-bold">D</div>
+                                <span class="text-[11px] font-medium text-[#2d2b3a]">DeepSeek</span>
+                                <span class="ml-auto text-[9px] text-[#5e8b7e]">● 已完成</span>
+                            </div>
+                            <div class="space-y-1.5"><div class="h-1.5 bg-[#dcd8f0] rounded w-full"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-4/5"></div><div class="h-1.5 bg-[#dcd8f0] rounded w-3/5"></div></div>
+                        </div>
+                    </div>
+                    <!-- Input bar -->
+                    <div class="glass-strong rounded-full px-4 py-2.5 flex items-center gap-3">
+                        <span class="text-sm">✨</span>
+                        <span class="text-xs text-[#a098b8]">输入任务，同时发送给多个 AI...</span>
+                        <div class="ml-auto flex gap-1">
+                            <span class="px-2 py-0.5 rounded-full bg-white/50 text-[9px] text-[#8a82a0]">Kimi</span>
+                            <span class="px-2 py-0.5 rounded-full bg-white/50 text-[9px] text-[#8a82a0]">Claude</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 opacity-40">
+        <span class="text-[10px] text-[#7a7790]">向下滚动</span>
+        <div class="w-4 h-7 border border-[#b8b0d0] rounded-full flex justify-center pt-1">
+            <div class="w-0.5 h-1.5 bg-[#b8b0d0] rounded-full" style="animation:float 2s ease-in-out infinite"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== POSITIONING ===== -->
+<section id="position" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-purple mb-3 inline-block">产品定位</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">为什么需要 AI Nexus</h2>
+            <p class="text-[#7a7790] max-w-lg mx-auto">AI 工具越来越多但各自孤立，开发者在多个 AI 间反复切换、复制粘贴，效率低下且知识难以沉淀。</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-5">
+            <div class="card-hover glass rounded-2xl p-7">
+                <div class="w-11 h-11 rounded-xl glass-icon flex items-center justify-center text-xl mb-5">⚡</div>
+                <h3 class="text-lg font-bold text-[#2d2b3a] mb-2">多 AI 并行查询</h3>
+                <p class="text-sm text-[#7a7790] leading-relaxed mb-4">一次输入同时向 Kimi、Claude、Codex、DeepSeek、GPT-4o 发送问题，各模型独立流式输出，横向对比差异。</p>
+                <div class="flex gap-2"><span class="tag tag-blue text-[10px]">SSE 流式</span><span class="tag tag-purple text-[10px]">WebSocket</span></div>
+            </div>
+            <div class="card-hover glass rounded-2xl p-7">
+                <div class="w-11 h-11 rounded-xl glass-icon flex items-center justify-center text-xl mb-5">📚</div>
+                <h3 class="text-lg font-bold text-[#2d2b3a] mb-2">素材库 & 评审</h3>
+                <p class="text-sm text-[#7a7790] leading-relaxed mb-4">选中任意文字一键加入素材库，自动收集多个 AI 的精华回答。一键生成评审总结报告。</p>
+                <div class="flex gap-2"><span class="tag tag-green text-[10px]">SQLite</span><span class="tag tag-amber text-[10px]">自动评审</span></div>
+            </div>
+            <div class="card-hover glass rounded-2xl p-7">
+                <div class="w-11 h-11 rounded-xl glass-icon flex items-center justify-center text-xl mb-5">🔒</div>
+                <h3 class="text-lg font-bold text-[#2d2b3a] mb-2">本地优先 & 安全</h3>
+                <p class="text-sm text-[#7a7790] leading-relaxed mb-4">所有数据本地 SQLite 存储，敏感代码不上云。CLI 命令执行前自动风险评估，分级审批。</p>
+                <div class="flex gap-2"><span class="tag tag-red text-[10px]">CLI 沙箱</span><span class="tag tag-amber text-[10px]">风险分级</span></div>
+            </div>
+        </div>
+
+        <!-- Pain table -->
+        <div class="mt-14 glass rounded-2xl overflow-hidden">
+            <div class="px-6 py-5 border-b border-[rgba(220,220,242,0.5)]"><h3 class="text-lg font-bold text-[#2d2b3a]">痛点 vs 解决方案</h3></div>
+            <table class="data-table">
+                <thead><tr><th style="width:28%">痛点</th><th style="width:36%">场景</th><th>AI Nexus 方案</th></tr></thead>
+                <tbody>
+                    <tr><td class="font-medium text-[#2d2b3a]">多 AI 反复切换</td><td>在 Kimi、Claude、ChatGPT 间复制粘贴</td><td class="text-[#6b6bbd] font-medium">统一工作台，一次输入多模型并行</td></tr>
+                    <tr><td class="font-medium text-[#2d2b3a]">API Key 管理混乱</td><td>各平台 Key 散落在不同地方</td><td class="text-[#6b6bbd] font-medium">启动自动检测本机已登录账号</td></tr>
+                    <tr><td class="font-medium text-[#2d2b3a]">回答难以对比</td><td>想对比两个模型的回答需来回翻页</td><td class="text-[#6b6bbd] font-medium">并排面板，实时横向对比</td></tr>
+                    <tr><td class="font-medium text-[#2d2b3a]">好回答难以沉淀</td><td>好的代码片段想保存很繁琐</td><td class="text-[#6b6bbd] font-medium">选中即收藏，素材库统一管理</td></tr>
+                    <tr><td class="font-medium text-[#2d2b3a]">CLI 操作有风险</td><td>AI 建议的 rm -rf 直接执行？</td><td class="text-[#6b6bbd] font-medium">5 级风险评估，审批后才执行</td></tr>
+                    <tr><td class="font-medium text-[#2d2b3a]">对话历史丢失</td><td>刷新页面后记录没了</td><td class="text-[#6b6bbd] font-medium">SQLite 本地持久化</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="features" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-blue mb-3 inline-block">核心功能</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">完整功能矩阵</h2>
+            <p class="text-[#7a7790] max-w-lg mx-auto">从 AI 查询到素材沉淀，从 CLI 审批到桌面打包，覆盖 AI 协作完整工作流。</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#8BA4B8]/15 flex items-center justify-center text-lg">⚡</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">多 AI 并行查询</h4><span class="text-[10px] text-[#a098b8]">核心功能</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">同时调用多个 AI 模型，各模型独立 SSE 流式输出。支持 Kimi、Claude、Codex、DeepSeek、GPT-4o。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#9B8DA6]/15 flex items-center justify-center text-lg">🔍</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">自动账号检测</h4><span class="text-[10px] text-[#a098b8]">Auth Detector</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">启动时扫描 7 类来源，自动发现本机已登录的 AI 账号，无需手动配置 API Key。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#5E8B7E]/15 flex items-center justify-center text-lg">📥</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">素材库管理</h4><span class="text-[10px] text-[#a098b8]">Material Library</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">选中任意文字一键收藏，右侧素材库面板统一管理，支持选择多个素材进行评审总结。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#C9956A]/15 flex items-center justify-center text-lg">📊</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">评审总结</h4><span class="text-[10px] text-[#a098b8]">Review Engine</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">手动触发评审总结，系统调用评审模型对所有素材和 AI 响应进行智能对比分析。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#b85a5a]/10 flex items-center justify-center text-lg">🛡️</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">CLI 安全审批</h4><span class="text-[10px] text-[#a098b8]">CLI Sandbox</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">敏感 CLI 命令执行前弹窗确认，5 级风险评估，子进程沙箱执行，审计日志记录。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#9090e0]/15 flex items-center justify-center text-lg">⚙️</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">管理控制台</h4><span class="text-[10px] text-[#a098b8]">Management</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">Skills 技能配置、CLI 运行时管理、模型参数调整、MCP 服务器配置，SQLite 持久化保存。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#8BA4B8]/15 flex items-center justify-center text-lg">📜</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">历史任务</h4><span class="text-[10px] text-[#a098b8]">Task History</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">三栏式任务管理：任务列表 / 时间线 / 素材。所有查询历史自动保存，可随时回顾。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#9B8DA6]/15 flex items-center justify-center text-lg">💾</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">SQLite 持久化</h4><span class="text-[10px] text-[#a098b8]">Data Layer</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">所有数据本地 SQLite 存储，自动保存机制，数据不丢失，隐私安全。</p>
+            </div>
+            <div class="card-hover glass rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#5E8B7E]/15 flex items-center justify-center text-lg">🖥️</div>
+                    <div><h4 class="font-bold text-[#2d2b3a] text-sm">Electron 桌面</h4><span class="text-[10px] text-[#a098b8]">Desktop App</span></div>
+                </div>
+                <p class="text-xs text-[#7a7790] leading-relaxed">Electron 42 打包为 macOS 应用（.dmg）。后端作为子进程启动，自动等待健康检查。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== AUTH DETECTOR ===== -->
+<section id="auth" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-purple mb-3 inline-block">Auth Detector</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">自动账号检测</h2>
+            <p class="text-[#7a7790] max-w-lg mx-auto">启动时自动扫描本机已登录的 AI 账号，无需手动配置 API Key。</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#C9956A]/15 flex items-center justify-center text-[#C9956A] font-bold text-[10px]">C</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">Claude Code</div><div class="text-[10px] text-[#a098b8]">Anthropic</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">~/.claude/ 凭据、claude CLI、ANTHROPIC_API_KEY</div>
+            </div>
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#5E8B7E]/15 flex items-center justify-center text-[#5E8B7E] font-bold text-[10px]">X</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">Codex</div><div class="text-[10px] text-[#a098b8]">OpenAI</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">~/.codex/auth.json、Codex Desktop、CC Switch DB</div>
+            </div>
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#8BA4B8]/15 flex items-center justify-center text-[#8BA4B8] font-bold text-[10px]">K</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">Kimi</div><div class="text-[10px] text-[#a098b8]">Moonshot</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">VS Code 扩展 moonshot-ai.kimi-code、MOONSHOT_API_KEY</div>
+            </div>
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#9B8DA6]/15 flex items-center justify-center text-[#9B8DA6] font-bold text-[10px]">D</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">DeepSeek</div><div class="text-[10px] text-[#a098b8]">DeepSeek</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">CC Switch DB、DEEPSEEK_API_KEY</div>
+            </div>
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#5E8B7E]/15 flex items-center justify-center text-[#5E8B7E] font-bold text-[10px]">O</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">OpenAI</div><div class="text-[10px] text-[#a098b8]">GPT-4o</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">OPENAI_API_KEY 环境变量</div>
+            </div>
+            <div class="detector-item">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#8BA4B8]/15 flex items-center justify-center text-[#8BA4B8] font-bold text-[10px]">L</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">lark-cli</div><div class="text-[10px] text-[#a098b8]">飞书</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">~/.lark-cli/ 凭据、lark-cli auth whoami</div>
+            </div>
+            <div class="detector-item md:col-span-2">
+                <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#b8b0d0]/15 flex items-center justify-center text-[#8a82a0] font-bold text-[10px]">⌘</div>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">CLI 工具</div><div class="text-[10px] text-[#a098b8]">系统工具</div></div>
+                </div>
+                <div class="text-[11px] text-[#8a82a0]">Git / Node / npm / Python / Docker 版本检测</div>
+            </div>
+        </div>
+
+        <!-- Flow -->
+        <div class="mt-10 glass rounded-2xl p-6">
+            <h3 class="text-base font-bold text-[#2d2b3a] mb-5">检测流程</h3>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="px-3 py-1.5 rounded-lg bg-[#9090e0]/10 text-[#6b6bbd] text-xs font-medium">启动应用</div>
+                <span class="text-[#c0b8d8]">→</span>
+                <div class="px-3 py-1.5 rounded-lg bg-[#9b8da6]/10 text-[#7a6b8a] text-xs font-medium">DetectorRegistry.scanAll()</div>
+                <span class="text-[#c0b8d8]">→</span>
+                <div class="px-3 py-1.5 rounded-lg bg-[#8BA4B8]/10 text-[#6a8a9e] text-xs font-medium">7 个 Detector 并行</div>
+                <span class="text-[#c0b8d8]">→</span>
+                <div class="px-3 py-1.5 rounded-lg bg-[#5E8B7E]/10 text-[#4e7b6e] text-xs font-medium">WS 推送结果</div>
+                <span class="text-[#c0b8d8]">→</span>
+                <div class="px-3 py-1.5 rounded-lg bg-[#C9956A]/10 text-[#a97848] text-xs font-medium">展示可用账号</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CLI SECURITY ===== -->
+<section id="cli" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-red mb-3 inline-block">CLI Sandbox</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">CLI 安全审批</h2>
+            <p class="text-[#7a7790] max-w-lg mx-auto">AI 建议执行 CLI 命令？先评估风险，再审批执行。</p>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
+            <div class="glass rounded-xl p-4 text-center risk-read">
+                <div class="text-xl mb-1.5">🟢</div>
+                <div class="text-sm font-bold text-[#5e8b7e]">Read</div>
+                <div class="text-[10px] text-[#8a82a0] mt-1">ls, cat, pwd</div>
+                <div class="text-[9px] text-[#5e8b7e]/60 mt-1.5">低风险</div>
+            </div>
+            <div class="glass rounded-xl p-4 text-center risk-write">
+                <div class="text-xl mb-1.5">🔵</div>
+                <div class="text-sm font-bold text-[#6b6bbd]">Write</div>
+                <div class="text-[10px] text-[#8a82a0] mt-1">mkdir, cp, git</div>
+                <div class="text-[9px] text-[#6b6bbd]/60 mt-1.5">中风险</div>
+            </div>
+            <div class="glass rounded-xl p-4 text-center risk-exec">
+                <div class="text-xl mb-1.5">🟠</div>
+                <div class="text-sm font-bold text-[#c9956a]">Exec</div>
+                <div class="text-[10px] text-[#8a82a0] mt-1">npm run, make</div>
+                <div class="text-[9px] text-[#c9956a]/60 mt-1.5">高风险</div>
+            </div>
+            <div class="glass rounded-xl p-4 text-center risk-network">
+                <div class="text-xl mb-1.5">🟤</div>
+                <div class="text-sm font-bold text-[#c97850]">Network</div>
+                <div class="text-[10px] text-[#8a82a0] mt-1">curl, wget</div>
+                <div class="text-[9px] text-[#c97850]/60 mt-1.5">高风险</div>
+            </div>
+            <div class="glass rounded-xl p-4 text-center risk-admin col-span-2 lg:col-span-1">
+                <div class="text-xl mb-1.5">🔴</div>
+                <div class="text-sm font-bold text-[#b85a5a]">Admin</div>
+                <div class="text-[10px] text-[#8a82a0] mt-1">rm -rf, sudo</div>
+                <div class="text-[9px] text-[#b85a5a]/60 mt-1.5">极高风险</div>
+            </div>
+        </div>
+
+        <!-- Approval flow -->
+        <div class="glass rounded-2xl p-6">
+            <h3 class="text-base font-bold text-[#2d2b3a] mb-5">审批流程</h3>
+            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                <div class="flex-1 p-3 rounded-xl bg-white/60 text-center"><div class="text-xs font-medium text-[#2d2b3a]">AI 建议命令</div><div class="text-[10px] text-[#8a82a0] mt-0.5">npm install express</div></div>
+                <span class="text-[#c0b8d8] hidden md:block">→</span>
+                <div class="flex-1 p-3 rounded-xl bg-[#c9956a]/8 text-center"><div class="text-xs font-medium text-[#a97848]">assessRisk()</div><div class="text-[10px] text-[#8a82a0] mt-0.5">Exec → High</div></div>
+                <span class="text-[#c0b8d8] hidden md:block">→</span>
+                <div class="flex-1 p-3 rounded-xl bg-[#c97850]/8 text-center"><div class="text-xs font-medium text-[#c97850]">createApproval()</div><div class="text-[10px] text-[#8a82a0] mt-0.5">创建审批记录</div></div>
+                <span class="text-[#c0b8d8] hidden md:block">→</span>
+                <div class="flex-1 p-3 rounded-xl bg-[#9b8da6]/10 text-center"><div class="text-xs font-medium text-[#7a6b8a]">WS 弹窗</div><div class="text-[10px] text-[#8a82a0] mt-0.5">approval_request</div></div>
+                <span class="text-[#c0b8d8] hidden md:block">→</span>
+                <div class="flex-1 p-3 rounded-xl bg-[#5e8b7e]/8 text-center"><div class="text-xs font-medium text-[#4e7b6e]">用户批准</div><div class="text-[10px] text-[#8a82a0] mt-0.5">子进程沙箱执行</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ARCHITECTURE ===== -->
+<section id="architecture" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-green mb-3 inline-block">系统架构</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">前后端分离 + WebSocket 实时通信</h2>
+        </div>
+
+        <div class="space-y-4 max-w-3xl mx-auto">
+            <!-- Desktop -->
+            <div class="glass-strong rounded-2xl p-6">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="text-lg">🖥️</span>
+                    <h3 class="text-base font-bold text-[#2d2b3a]">桌面层（Electron）</h3>
+                    <span class="tag tag-amber text-[10px] ml-auto">Electron 42</span>
+                </div>
+                <div class="grid md:grid-cols-3 gap-2.5">
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8] mb-0.5">主进程</div><div class="text-xs font-medium text-[#2d2b3a]">electron/main.cjs</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8] mb-0.5">启动流程</div><div class="text-xs font-medium text-[#2d2b3a]">start → wait → window</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8] mb-0.5">打包输出</div><div class="text-xs font-medium text-[#2d2b3a]">.app / .dmg</div></div>
+                </div>
+            </div>
+            <!-- Frontend -->
+            <div class="glass-strong rounded-2xl p-6">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="text-lg">🎨</span>
+                    <h3 class="text-base font-bold text-[#2d2b3a]">前端层（React 19）</h3>
+                    <span class="tag tag-blue text-[10px] ml-auto">Port 3000</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2.5">
+                    <div class="detector-item text-center"><div class="text-base mb-1">⚡</div><div class="text-[10px] font-medium text-[#2d2b3a]">Zustand</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">🔌</div><div class="text-[10px] font-medium text-[#2d2b3a]">useWebSocket</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">📐</div><div class="text-[10px] font-medium text-[#2d2b3a]">Tailwind</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">✨</div><div class="text-[10px] font-medium text-[#2d2b3a]">Framer Motion</div></div>
+                </div>
+            </div>
+            <!-- Connection -->
+            <div class="glass rounded-xl p-4 border-[#9090e0]/20">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-lg">📡</span>
+                    <div><div class="text-sm font-bold text-[#2d2b3a]">通信层</div><div class="text-[10px] text-[#8a82a0]">REST API + WebSocket 双通道</div></div>
+                    <div class="ml-auto flex gap-2"><span class="tag tag-purple text-[10px]">WebSocket</span><span class="tag tag-blue text-[10px]">REST</span></div>
+                </div>
+            </div>
+            <!-- Backend -->
+            <div class="glass-strong rounded-2xl p-6">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="text-lg">⚙️</span>
+                    <h3 class="text-base font-bold text-[#2d2b3a]">后端层（Node.js + Express）</h3>
+                    <span class="tag tag-green text-[10px] ml-auto">Port 5173</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2.5 mb-3">
+                    <div class="detector-item text-center"><div class="text-base mb-1">🤖</div><div class="text-[10px] font-medium text-[#2d2b3a]">AI Proxy</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">🌊</div><div class="text-[10px] font-medium text-[#2d2b3a]">Stream Mgr</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">🛡️</div><div class="text-[10px] font-medium text-[#2d2b3a]">CLI Executor</div></div>
+                    <div class="detector-item text-center"><div class="text-base mb-1">📝</div><div class="text-[10px] font-medium text-[#2d2b3a]">Review Gen</div></div>
+                </div>
+                <div class="flex flex-wrap gap-1.5 pt-3 border-t border-[rgba(220,220,242,0.4)]">
+                    <span class="tag text-[9px]">/api/auth</span><span class="tag text-[9px]">/api/models</span><span class="tag text-[9px]">/api/tasks</span><span class="tag text-[9px]">/api/materials</span>
+                    <span class="tag text-[9px]">/api/skills</span><span class="tag text-[9px]">/api/mcp</span><span class="tag text-[9px]">/api/settings</span><span class="tag text-[9px]">/api/health</span>
+                </div>
+            </div>
+            <!-- Data -->
+            <div class="glass-strong rounded-2xl p-6">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="text-lg">💾</span>
+                    <h3 class="text-base font-bold text-[#2d2b3a]">数据层（SQLite）</h3>
+                    <span class="tag tag-purple text-[10px] ml-auto">sql.js</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2.5">
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">models</div><div class="text-xs text-[#2d2b3a]">AI 模型配置</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">tasks/events</div><div class="text-xs text-[#2d2b3a]">任务 + 流水</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">materials</div><div class="text-xs text-[#2d2b3a]">素材库</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">skills/mcp</div><div class="text-xs text-[#2d2b3a]">技能/MCP</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">approvals</div><div class="text-xs text-[#2d2b3a]">审批 + 审计</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">cli_configs</div><div class="text-xs text-[#2d2b3a]">CLI 配置</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">workspaces</div><div class="text-xs text-[#2d2b3a]">工作空间</div></div>
+                    <div class="detector-item"><div class="text-[10px] text-[#a098b8]">settings</div><div class="text-xs text-[#2d2b3a]">全局设置</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== TECH STACK ===== -->
+<section id="tech" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-blue mb-3 inline-block">技术栈</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">全栈技术选型</h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-5">
+            <!-- Frontend -->
+            <div class="glass-strong rounded-2xl p-7">
+                <div class="flex items-center gap-2.5 mb-6">
+                    <span class="text-xl">🎨</span>
+                    <h3 class="text-lg font-bold text-[#2d2b3a]">前端</h3>
+                    <span class="tag tag-blue text-[10px] ml-auto">React 19</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">React 19</div><div class="text-[10px] text-[#a098b8]">UI 框架</div></div><span class="text-[10px] text-[#a098b8]">Concurrent Features</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">TypeScript 5.9</div><div class="text-[10px] text-[#a098b8]">类型安全</div></div><span class="text-[10px] text-[#a098b8]">严格模式</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">Vite 7</div><div class="text-[10px] text-[#a098b8]">构建工具</div></div><span class="text-[10px] text-[#a098b8]">HMR / 极速构建</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">Tailwind CSS 3 + shadcn/ui</div><div class="text-[10px] text-[#a098b8]">样式 + 组件</div></div><span class="text-[10px] text-[#a098b8]">Utility-First</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">Zustand</div><div class="text-[10px] text-[#a098b8]">状态管理</div></div><span class="text-[10px] text-[#a098b8]">轻量、TypeScript</span></div>
+                    <div class="flex justify-between py-2.5"><div><div class="text-sm font-medium text-[#2d2b3a]">Framer Motion</div><div class="text-[10px] text-[#a098b8]">动画</div></div><span class="text-[10px] text-[#a098b8]">声明式动画</span></div>
+                </div>
+            </div>
+            <!-- Backend -->
+            <div class="glass-strong rounded-2xl p-7">
+                <div class="flex items-center gap-2.5 mb-6">
+                    <span class="text-xl">⚙️</span>
+                    <h3 class="text-lg font-bold text-[#2d2b3a]">后端</h3>
+                    <span class="tag tag-green text-[10px] ml-auto">Node.js</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">Node.js + Express</div><div class="text-[10px] text-[#a098b8]">HTTP 服务</div></div><span class="text-[10px] text-[#a098b8]">REST API</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">WebSocket (ws)</div><div class="text-[10px] text-[#a098b8]">实时通信</div></div><span class="text-[10px] text-[#a098b8]">流式推送</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">SQLite (sql.js)</div><div class="text-[10px] text-[#a098b8]">数据库</div></div><span class="text-[10px] text-[#a098b8]">纯 JS，无原生依赖</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">OpenAI SDK + Anthropic SDK</div><div class="text-[10px] text-[#a098b8]">AI 调用</div></div><span class="text-[10px] text-[#a098b8]">多模型支持</span></div>
+                    <div class="flex justify-between py-2.5 border-b border-[rgba(220,220,242,0.4)]"><div><div class="text-sm font-medium text-[#2d2b3a]">Electron 42</div><div class="text-[10px] text-[#a098b8]">桌面框架</div></div><span class="text-[10px] text-[#a098b8]">macOS 打包</span></div>
+                    <div class="flex justify-between py-2.5"><div><div class="text-sm font-medium text-[#2d2b3a]">Vitest + Supertest</div><div class="text-[10px] text-[#a098b8]">测试</div></div><span class="text-[10px] text-[#a098b8]">28 个测试用例</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ROADMAP ===== -->
+<section id="roadmap" class="py-24">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="tag tag-green mb-3 inline-block">路线图</span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#2d2b3a] mb-4">未来规划</h2>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+            <!-- v1.0 -->
+            <div class="relative pl-8 pb-10">
+                <div class="absolute left-0 top-1 w-5 h-5 rounded-full bg-[#5e8b7e] border-[3px] border-white shadow-sm"></div>
+                <div class="absolute left-[9px] top-6 bottom-0 w-0.5 bg-[rgba(220,220,242,0.6)]"></div>
+                <div class="glass rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-2"><span class="tag tag-green text-[10px]">已完成</span><span class="text-[10px] text-[#a098b8]">v1.0.0</span></div>
+                    <h4 class="font-bold text-[#2d2b3a] mb-1">核心功能 + 后端 + Electron 打包</h4>
+                    <p class="text-xs text-[#8a82a0]">多 AI 并行查询、素材库、评审总结、CLI 安全审批、管理控制台、历史任务、SQLite 持久化、Electron 桌面打包、Auth Detector 自动账号检测</p>
+                </div>
+            </div>
+            <!-- v1.1 -->
+            <div class="relative pl-8 pb-10">
+                <div class="absolute left-0 top-1 w-5 h-5 rounded-full bg-[#9090e0] border-[3px] border-white shadow-sm"></div>
+                <div class="absolute left-[9px] top-6 bottom-0 w-0.5 bg-[rgba(220,220,242,0.6)]"></div>
+                <div class="glass rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-2"><span class="tag tag-blue text-[10px]">进行中</span><span class="text-[10px] text-[#a098b8]">v1.1.0</span></div>
+                    <h4 class="font-bold text-[#2d2b3a] mb-1">前端接入真实后端</h4>
+                    <p class="text-xs text-[#8a82a0]">替换前端模拟流式为真实 WebSocket 通信，完整打通前后端数据流</p>
+                </div>
+            </div>
+            <!-- v1.2 -->
+            <div class="relative pl-8 pb-10">
+                <div class="absolute left-0 top-1 w-5 h-5 rounded-full bg-[#9b8da6] border-[3px] border-white shadow-sm"></div>
+                <div class="absolute left-[9px] top-6 bottom-0 w-0.5 bg-[rgba(220,220,242,0.6)]"></div>
+                <div class="glass rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-2"><span class="tag tag-purple text-[10px]">计划</span><span class="text-[10px] text-[#a098b8]">v1.2.0</span></div>
+                    <h4 class="font-bold text-[#2d2b3a] mb-1">MCP 协议完整实现 + 插件系统</h4>
+                    <p class="text-xs text-[#8a82a0]">对接真实 MCP 服务器，支持第三方技能扩展</p>
+                </div>
+            </div>
+            <!-- v2.0 -->
+            <div class="relative pl-8">
+                <div class="absolute left-0 top-1 w-5 h-5 rounded-full bg-[#c9956a] border-[3px] border-white shadow-sm"></div>
+                <div class="glass rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-2"><span class="tag tag-amber text-[10px]">远期</span><span class="text-[10px] text-[#a098b8]">v2.0.0</span></div>
+                    <h4 class="font-bold text-[#2d2b3a] mb-1">团队协作 + 云端同步</h4>
+                    <p class="text-xs text-[#8a82a0]">多用户工作空间、共享素材库、可选云端备份</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="py-12 border-t border-[rgba(220,220,242,0.4)]">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+        <div class="flex items-center justify-center gap-2.5 mb-4">
+            <div class="w-9 h-9 rounded-xl accent-gradient flex items-center justify-center text-white font-bold text-xs">AI</div>
+            <span class="text-lg font-bold text-[#2d2b3a]">AI Nexus 汇智</span>
+        </div>
+        <p class="text-xs text-[#8a82a0] mb-4">Mac 本地优先的多 AI 协作操作工作台</p>
+        <div class="flex justify-center gap-3">
+            <a href="https://github.com/liyb-coder/AI-Nexus" target="_blank" class="tag hover:bg-white/60 transition text-[10px]">GitHub</a>
+            <span class="tag text-[10px]">MIT License</span>
+            <span class="tag text-[10px]">2026</span>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
