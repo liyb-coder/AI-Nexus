@@ -23,3 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 release/
+
+# ⚠️ 敏感文件 — 绝对不能提交
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*credentials*
+*secret*
+*password*
