@@ -13,6 +13,7 @@
     "build:all": "npm run build && npm run build:server",
     "package": "npm run build:all && electron-builder --mac",
     "package:dmg": "npm run build:all && electron-builder --mac dmg",
+    "package:app": "npm run build:all && electron-builder --mac dir && cp -r server/node_modules release/mac-arm64/AI\\ Nexus\\ 汇智台.app/Contents/Resources/server/node_modules && echo '✅ node_modules 已复制'",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "cd server && npm test",
