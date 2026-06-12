@@ -67,22 +67,29 @@ function startBackend() {
 // ── Wait for backend ──
 function waitForBackend(retries = 15) {
   let attempts = 0;
+  let done = false;
   function check() {
+    if (done) return;
     attempts++;
     http.get('http://127.0.0.1:5173/api/health', (res) => {
-      if (res.statusCode === 200) { console.log('[main] Backend ready'); createWindow(); }
+      if (done) return;
+      if (res.statusCode === 200) { done = true; console.log('[main] Backend ready'); createWindow(); }
       else if (attempts < retries) setTimeout(check, 600);
       else { dialog.showErrorBox('启动超时', '后端启动超时'); app.quit(); }
     }).on('error', () => {
+      if (done) return;
       if (attempts < retries) setTimeout(check, 600);
       else { dialog.showErrorBox('启动超时', '后端无响应\ncd server && npm install'); app.quit(); }
-    }).setTimeout(3000, function() { this.destroy(); if (attempts < retries) setTimeout(check, 600); });
+    }).setTimeout(3000, function() { if (!done) { this.destroy(); if (attempts < retries) setTimeout(check, 600); } });
   }
   check();
 }
 
-// ── Create window ──
+// ── Create window (guarded against multiple calls) ──
+let windowCreated = false;
 function createWindow() {
+  if (windowCreated || mainWindow) return;
+  windowCreated = true;
   mainWindow = new BrowserWindow({
     width: 1440, height: 900, minWidth: 900, minHeight: 600,
     title: 'AI Nexus 汇智', show: false,
@@ -92,7 +99,7 @@ function createWindow() {
   const url = isDev ? 'http://localhost:3000' : `http://127.0.0.1:${FRONTEND_PORT}`;
   mainWindow.loadURL(url);
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.on('closed', () => { mainWindow = null; });
+  mainWindow.on('closed', () => { mainWindow = null; windowCreated = false; });
 }
 
 // ── App lifecycle ──
