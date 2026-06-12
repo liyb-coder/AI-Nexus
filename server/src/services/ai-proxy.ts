@@ -37,7 +37,7 @@ export class AIProxy {
   /**
    * Get API key for a model: check DB config, then env vars, then detected accounts.
    */
-  private getApiKey(model: ModelRow, detectedAccounts: DetectedAccount[]): string | null {
+  private async getApiKey(model: ModelRow, detectedAccounts: DetectedAccount[]): Promise<string | null> {
     // 1. Check env var specified in model config
     if (model.api_key_env) {
       const val = process.env[model.api_key_env];
@@ -56,6 +56,7 @@ export class AIProxy {
     // 3. Try common env var patterns
     const envMap: Record<string, string> = {
       openai: 'OPENAI_API_KEY',
+      codex: 'OPENAI_API_KEY',
       kimi: 'MOONSHOT_API_KEY',
       deepseek: 'DEEPSEEK_API_KEY',
       claude: 'ANTHROPIC_API_KEY',
@@ -66,6 +67,42 @@ export class AIProxy {
     if (envVar && process.env[envVar]) {
       return process.env[envVar]!;
     }
+
+    // 4. Try CC Switch DB for DeepSeek / Codex keys
+    try {
+      const { readFileSync } = await import('fs');
+      const { join } = await import('path');
+      const { homedir } = await import('os');
+      const ccSwitchDb = join(homedir(), '.cc-switch', 'cc-switch.db');
+      if ((await import('fs')).existsSync(ccSwitchDb)) {
+        const initSqlJs = (await import('sql.js')).default;
+        const SQL = await initSqlJs();
+        const buffer = readFileSync(ccSwitchDb);
+        const sqlDb = new SQL.Database(buffer);
+
+        if (model.id === 'deepseek') {
+          const stmt = sqlDb.prepare("SELECT settings_config FROM providers WHERE settings_config LIKE '%deepseek%' AND settings_config LIKE '%ANTHROPIC_AUTH_TOKEN%' LIMIT 1");
+          if (stmt.step()) {
+            const row = stmt.getAsObject();
+            const match = (row.settings_config as string).match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
+            if (match) { stmt.free(); sqlDb.close(); return match[1]; }
+          }
+          stmt.free();
+        }
+
+        if (model.id === 'codex' || model.id === 'openai') {
+          const stmt = sqlDb.prepare("SELECT settings_config FROM providers WHERE settings_config LIKE '%OPENAI_API_KEY%' LIMIT 1");
+          if (stmt.step()) {
+            const row = stmt.getAsObject();
+            const match = (row.settings_config as string).match(/"OPENAI_API_KEY":"(fe_oa_[^"]+)"/);
+            if (match) { stmt.free(); sqlDb.close(); return match[1]; }
+          }
+          stmt.free();
+        }
+
+        sqlDb.close();
+      }
+    } catch { /* CC Switch unavailable */ }
 
     return null;
   }
@@ -197,7 +234,7 @@ export class AIProxy {
         return;
       }
 
-      const apiKey = this.getApiKey(model, detectedAccounts);
+      const apiKey = await this.getApiKey(model, detectedAccounts);
       if (!apiKey) {
         config.callbacks.onError(
           modelId,
