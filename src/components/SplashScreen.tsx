@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SplashScreenProps {
@@ -7,22 +7,16 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onFinish }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
 
   useEffect(() => {
-    // Auto-dismiss after 1.8s
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onFinish, 300);
+      setTimeout(() => onFinishRef.current(), 300);
     }, 1800);
-
     return () => clearTimeout(timer);
-  }, [onFinish]);
-
-  const handleClick = () => {
-    setIsVisible(false);
-    setTimeout(onFinish, 200);
-  };
+  }, []); // empty deps — run once only
 
   return (
     <AnimatePresence>
@@ -33,26 +27,15 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          onClick={handleClick}
+          onClick={() => { setIsVisible(false); setTimeout(() => onFinishRef.current(), 200); }}
         >
-          <motion.img
+          <img
             src="/splash-bg.png"
             className="absolute inset-0 w-full h-full object-cover"
-            onLoad={() => setImgLoaded(true)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: imgLoaded ? 1 : 0 }}
-            transition={{ duration: 0.4 }}
           />
-
-          {/* Skip hint */}
-          <motion.p
-            className="absolute bottom-10 text-[#7b6bc8] text-xs tracking-widest z-10 font-medium"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-          >
+          <p className="absolute bottom-10 text-[#7b6bc8] text-xs tracking-widest z-10 font-medium">
             点击任意位置进入
-          </motion.p>
+          </p>
         </motion.div>
       )}
     </AnimatePresence>
