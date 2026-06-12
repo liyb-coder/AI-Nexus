@@ -11,12 +11,12 @@ files:
   - package.json
 
 extraResources:
-  - from: server/dist/
-    to: server/
-  - from: server/node_modules/
-    to: server/node_modules/
-  - from: server/package.json
-    to: server/
+  - from: server
+    to: server
+    filter:
+      - dist/**/*
+      - node_modules/**/*
+      - package.json
 
 asar: true
 
