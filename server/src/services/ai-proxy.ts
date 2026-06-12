@@ -138,6 +138,37 @@ export class AIProxy {
       } catch { /* Codex Desktop auth unavailable */ }
     }
 
+    // 6. Claude → DeepSeek routing via CC Switch
+    if (model.id === 'claude') {
+      try {
+        const { readFileSync: rf3, existsSync: ex3 } = await import('fs');
+        const { join: j3 } = await import('path');
+        const { homedir: home3 } = await import('os');
+        const ccDb = j3(home3(), '.cc-switch', 'cc-switch.db');
+        if (ex3(ccDb)) {
+          const initSqlJs = (await import('sql.js')).default;
+          const SQL = await initSqlJs();
+          const buffer = rf3(ccDb);
+          const sqlDb = new SQL.Database(buffer);
+          const stmt = sqlDb.prepare(
+            "SELECT settings_config FROM providers WHERE app_type='claude' AND settings_config LIKE '%ANTHROPIC_AUTH_TOKEN%' AND settings_config LIKE '%deepseek%' LIMIT 1"
+          );
+          if (stmt.step()) {
+            const row = stmt.getAsObject();
+            const match = (row.settings_config as string).match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
+            if (match) {
+              // Override endpoint to DeepSeek's Anthropic-compatible URL
+              const urlMatch = (row.settings_config as string).match(/"ANTHROPIC_BASE_URL":"([^"]+)"/);
+              if (urlMatch) _endpointOverrides.set('claude', urlMatch[1]);
+              stmt.free(); sqlDb.close();
+              return match[1];
+            }
+          }
+          stmt.free(); sqlDb.close();
+        }
+      } catch { /* unavailable */ }
+    }
+
     return null;
   }
 
@@ -285,7 +316,10 @@ export class AIProxy {
 
       try {
         if (model.provider === 'anthropic') {
-          await this.queryAnthropic(model, config.query, systemPrompt, apiKey, config.callbacks);
+          await this.queryAnthropic(
+            { ...model, endpoint: effectiveEndpoint },
+            config.query, systemPrompt, apiKey, config.callbacks
+          );
         } else {
           await this.queryOpenAICompatible(
             { ...model, endpoint: effectiveEndpoint },
