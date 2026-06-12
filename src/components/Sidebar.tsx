@@ -6,7 +6,6 @@ import {
   ClipboardList,
   SlidersHorizontal,
   Settings,
-  Terminal,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -17,18 +16,8 @@ export function Sidebar() {
   return (
     <>
       <nav className="fixed left-0 top-0 h-full w-20 flex flex-col items-center py-6 glass-panel border-r border-white/40 z-50">
-        {/* Logo */}
-        <div className="mb-10">
-          <div className="w-12 h-12 rounded-xl icon-glass shadow-sm mb-2">
-            <Terminal className="w-5 h-5 text-[#374151]" strokeWidth={1.5} />
-          </div>
-          <div className="text-[10px] text-center font-bold text-[#1a1c1f] tracking-tighter opacity-70">
-            PRO
-          </div>
-        </div>
-
         {/* Main Nav */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4 mt-4">
           {/* Workbench */}
           <button
             onClick={() => setCurrentView('workbench')}

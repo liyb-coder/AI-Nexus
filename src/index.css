@@ -6,36 +6,41 @@
 
 @layer base {
   :root {
-    /* Luminal Glass Theme */
-    --background: 240 20% 99%;
-    --foreground: 220 14% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 14% 12%;
-    --popover: 240 20% 99%;
-    --popover-foreground: 220 14% 12%;
-    --primary: 0 0% 0%;
+    /* Ethereal Brand Theme — periwinkle blue-purple */
+    --background: 250 30% 97%;
+    --foreground: 248 15% 18%;
+    --card: 250 25% 98%;
+    --card-foreground: 248 15% 18%;
+    --popover: 250 30% 97%;
+    --popover-foreground: 248 15% 18%;
+    --primary: 245 50% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 2% 37%;
+    --secondary: 246 25% 65%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 6% 94%;
-    --muted-foreground: 250 4% 30%;
-    --accent: 240 6% 94%;
-    --accent-foreground: 220 14% 12%;
+    --muted: 248 20% 92%;
+    --muted-foreground: 248 10% 40%;
+    --accent: 248 25% 90%;
+    --accent-foreground: 248 15% 18%;
     --destructive: 0 72% 41%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 100% / 0.5;
-    --input: 240 6% 94%;
-    --ring: 240 2% 37%;
+    --border: 248 30% 88% / 0.5;
+    --input: 248 20% 92%;
+    --ring: 245 50% 55%;
     --radius: 0.75rem;
 
-    /* Glass tokens */
-    --glass-surface: rgba(255, 255, 255, 0.45);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-dark: rgba(0, 0, 0, 0.3);
-    --glass-icon: rgba(255, 255, 255, 0.4);
-    --glass-icon-border: rgba(255, 255, 255, 0.6);
+    /* Glass tokens — tinted with brand periwinkle */
+    --glass-surface: rgba(241, 238, 246, 0.55);
+    --glass-border: rgba(220, 220, 242, 0.5);
+    --glass-dark: rgba(45, 43, 58, 0.6);
+    --glass-icon: rgba(241, 238, 246, 0.5);
+    --glass-icon-border: rgba(220, 220, 242, 0.6);
 
-    /* AI Colors — extracted from background scenery */
+    /* Brand accent */
+    --brand-accent: #9090e0;
+    --brand-light: #dcdcf2;
+    --brand-surface: #f1eef6;
+
+    /* AI Colors — harmonized with brand */
     --ai-kimi: #8BA4B8;
     --ai-claude: #C9956A;
     --ai-codex: #5E8B7E;
@@ -56,38 +61,38 @@
 }
 
 @layer components {
-  /* Glass Panel Base */
+  /* Glass Panel Base — brand-tinted periwinkle */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(241, 238, 246, 0.52);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(220, 220, 242, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(100, 90, 160, 0.06);
   }
 
   .glass-panel-strong {
-    background: rgba(255, 255, 255, 0.55);
+    background: rgba(241, 238, 246, 0.7);
     backdrop-filter: blur(48px);
     -webkit-backdrop-filter: blur(48px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(220, 220, 242, 0.65);
+    box-shadow: 0 8px 32px 0 rgba(100, 90, 160, 0.1);
   }
 
-  /* Dark Glass for summary cards */
+  /* Dark Glass — brand-deep purple tinted */
   .glass-dark {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(45, 43, 58, 0.65);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(220, 220, 242, 0.2);
   }
 
-  /* White Glass Icon Container */
+  /* Icon Glass Container — brand-tinted */
   .icon-glass {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(220, 220, 242, 0.35);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    color: #374151;
+    border: 1px solid rgba(180, 175, 215, 0.5);
+    color: #5b58a8;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,8 +100,8 @@
 
   /* Active tab indicator */
   .active-tab {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8), 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 1px rgba(220, 220, 242, 0.8), 0 4px 12px rgba(100, 90, 160, 0.15);
+    background: rgba(241, 238, 246, 0.75);
   }
 }
 
@@ -162,8 +167,8 @@
   .bg-ai-deepseek { background-color: var(--ai-deepseek); }
 }
 
-/* Selection color */
+/* Selection color — brand periwinkle */
 ::selection {
-  background-color: rgba(29, 78, 216, 0.2);
-  color: #1a1c1f;
+  background-color: rgba(144, 144, 224, 0.25);
+  color: #2d2b3a;
 }
