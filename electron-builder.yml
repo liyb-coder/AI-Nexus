@@ -12,12 +12,12 @@ files:
   - package.json
 
 extraResources:
-  - from: server
+  - from: server/dist
+    to: server/dist
+  - from: server/node_modules
+    to: server/node_modules
+  - from: server/package.json
     to: server
-    filter:
-      - "**/*"
-      - "!src/**"
-      - "!__tests__/**"
 
 asar: true
 
