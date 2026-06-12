@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
-import { useSimulateStream } from '@/hooks/useSimulateStream';
+import { useRealStream } from '@/hooks/useRealStream';
 import {
   Send,
   X,
@@ -20,7 +20,7 @@ export function Console({ onFocusChange }: ConsoleProps) {
     clearSelectedMaterials,
     models,
   } = useAppStore();
-  const { startAllStreams } = useSimulateStream();
+  const { startAllStreams } = useRealStream();
   const [selectedModels, setSelectedModels] = useState<Set<string>>(
     new Set(models.filter((m) => m.enabled).map((m) => m.id))
   );
