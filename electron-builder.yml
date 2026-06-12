@@ -15,9 +15,9 @@ extraResources:
   - from: server
     to: server
     filter:
-      - dist/**/*
-      - node_modules/**/*
-      - package.json
+      - "**/*"
+      - "!src/**"
+      - "!__tests__/**"
 
 asar: true
 
