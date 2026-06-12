@@ -20,6 +20,9 @@ interface AIQueryConfig {
  * Detects available API keys from environment variables at runtime.
  * Each model's stream is forwarded to callbacks for WebSocket delivery.
  */
+// Endpoint overrides extracted from CC Switch (ephemeral, per-process)
+const _endpointOverrides = new Map<string, string>();
+
 export class AIProxy {
   /**
    * Build a system prompt that includes materials (reference packages).
@@ -68,41 +71,72 @@ export class AIProxy {
       return process.env[envVar]!;
     }
 
-    // 4. Try CC Switch DB for DeepSeek / Codex keys
+    // 4. Try CC Switch DB — extracts key + endpoint together
     try {
-      const { readFileSync } = await import('fs');
+      const { readFileSync, existsSync } = await import('fs');
       const { join } = await import('path');
       const { homedir } = await import('os');
       const ccSwitchDb = join(homedir(), '.cc-switch', 'cc-switch.db');
-      if ((await import('fs')).existsSync(ccSwitchDb)) {
-        const initSqlJs = (await import('sql.js')).default;
-        const SQL = await initSqlJs();
-        const buffer = readFileSync(ccSwitchDb);
-        const sqlDb = new SQL.Database(buffer);
+      if (!existsSync(ccSwitchDb)) return null;
 
-        if (model.id === 'deepseek') {
-          const stmt = sqlDb.prepare("SELECT settings_config FROM providers WHERE settings_config LIKE '%deepseek%' AND settings_config LIKE '%ANTHROPIC_AUTH_TOKEN%' LIMIT 1");
-          if (stmt.step()) {
-            const row = stmt.getAsObject();
-            const match = (row.settings_config as string).match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
-            if (match) { stmt.free(); sqlDb.close(); return match[1]; }
-          }
-          stmt.free();
+      const initSqlJs = (await import('sql.js')).default;
+      const SQL = await initSqlJs();
+      const buffer = readFileSync(ccSwitchDb);
+      const sqlDb = new SQL.Database(buffer);
+
+      // DeepSeek: Anthropic AUTH_TOKEN (works for both Anthropic & OpenAI-compatible endpoints)
+      if (model.id === 'deepseek') {
+        const stmt = sqlDb.prepare(
+          "SELECT settings_config FROM providers WHERE settings_config LIKE '%deepseek%' AND settings_config LIKE '%ANTHROPIC_AUTH_TOKEN%' LIMIT 1"
+        );
+        if (stmt.step()) {
+          const row = stmt.getAsObject();
+          const match = (row.settings_config as string).match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
+          if (match) { stmt.free(); sqlDb.close(); return match[1]; }
         }
-
-        if (model.id === 'codex' || model.id === 'openai') {
-          const stmt = sqlDb.prepare("SELECT settings_config FROM providers WHERE settings_config LIKE '%OPENAI_API_KEY%' LIMIT 1");
-          if (stmt.step()) {
-            const row = stmt.getAsObject();
-            const match = (row.settings_config as string).match(/"OPENAI_API_KEY":"(fe_oa_[^"]+)"/);
-            if (match) { stmt.free(); sqlDb.close(); return match[1]; }
-          }
-          stmt.free();
-        }
-
-        sqlDb.close();
+        stmt.free();
       }
+
+      // Codex/OpenAI: freemodel or custom providers with OpenAI-compatible endpoints
+      if (model.id === 'codex' || model.id === 'openai') {
+        const stmt = sqlDb.prepare(
+          "SELECT settings_config FROM providers WHERE app_type='codex' AND settings_config LIKE '%OPENAI_API_KEY%' LIMIT 1"
+        );
+        while (stmt.step()) {
+          const row = stmt.getAsObject();
+          const config = row.settings_config as string;
+          const keyMatch = config.match(/"OPENAI_API_KEY":"([^"]+)"/);
+          const urlMatch = config.match(/"base_url":"([^"]+)"/);
+          if (keyMatch) {
+            const key = keyMatch[1];
+            // Use the provider's base_url as the endpoint
+            if (urlMatch) {
+              // Store endpoint override in a temporary static map
+              _endpointOverrides.set(model.id, urlMatch[1]);
+            }
+            stmt.free(); sqlDb.close();
+            return key;
+          }
+        }
+        stmt.free();
+      }
+
+      sqlDb.close();
     } catch { /* CC Switch unavailable */ }
+
+    // 5. Codex Desktop OAuth token
+    if (model.id === 'codex') {
+      try {
+        const { readFileSync: rf2 } = await import('fs');
+        const { homedir: home2 } = await import('os');
+        const { join: j2 } = await import('path');
+        const authPath = j2(home2(), '.codex', 'auth.json');
+        const auth = JSON.parse(rf2(authPath, 'utf-8'));
+        if (auth.tokens?.access_token) {
+          return auth.tokens.access_token;
+        }
+      } catch { /* Codex Desktop auth unavailable */ }
+    }
 
     return null;
   }
@@ -243,14 +277,20 @@ export class AIProxy {
         return;
       }
 
+      // Override endpoint if CC Switch provided one
+      const effectiveEndpoint = _endpointOverrides.get(modelId) || model.endpoint;
+
       // Send stream_start
-      config.callbacks.onChunk(modelId, ''); // signals start via first empty chunk
+      config.callbacks.onChunk(modelId, '');
 
       try {
         if (model.provider === 'anthropic') {
           await this.queryAnthropic(model, config.query, systemPrompt, apiKey, config.callbacks);
         } else {
-          await this.queryOpenAICompatible(model, config.query, systemPrompt, apiKey, config.callbacks);
+          await this.queryOpenAICompatible(
+            { ...model, endpoint: effectiveEndpoint },
+            config.query, systemPrompt, apiKey, config.callbacks
+          );
         }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
