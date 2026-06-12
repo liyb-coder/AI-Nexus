@@ -445,7 +445,10 @@ export function ReviewPanel() {
               </span>
             </button>
             <div className="space-y-3 overflow-y-auto scroll-hide flex-1 min-h-0">
-              {renderReviewContent(reviewContent)}
+              {reviewExpanded
+                ? renderReviewContent(reviewContent)
+                : renderReviewContent(reviewContent.split('\n').slice(0, 6).join('\n'))
+              }
             </div>
             {/* Add to library button */}
             <button
