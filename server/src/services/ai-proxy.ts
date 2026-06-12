@@ -20,8 +20,9 @@ interface AIQueryConfig {
  * Detects available API keys from environment variables at runtime.
  * Each model's stream is forwarded to callbacks for WebSocket delivery.
  */
-// Endpoint overrides extracted from CC Switch (ephemeral, per-process)
+// CC Switch overrides (ephemeral, per-process)
 const _endpointOverrides = new Map<string, string>();
+const _modelOverrides = new Map<string, string>();
 
 export class AIProxy {
   /**
@@ -84,15 +85,22 @@ export class AIProxy {
       const buffer = readFileSync(ccSwitchDb);
       const sqlDb = new SQL.Database(buffer);
 
-      // DeepSeek: Anthropic AUTH_TOKEN (works for both Anthropic & OpenAI-compatible endpoints)
+      // DeepSeek: key + model name from CC Switch
       if (model.id === 'deepseek') {
         const stmt = sqlDb.prepare(
           "SELECT settings_config FROM providers WHERE settings_config LIKE '%deepseek%' AND settings_config LIKE '%ANTHROPIC_AUTH_TOKEN%' LIMIT 1"
         );
         if (stmt.step()) {
           const row = stmt.getAsObject();
-          const match = (row.settings_config as string).match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
-          if (match) { stmt.free(); sqlDb.close(); return match[1]; }
+          const config = row.settings_config as string;
+          const keyMatch = config.match(/"ANTHROPIC_AUTH_TOKEN":"(sk-[^"]+)"/);
+          if (keyMatch) {
+            // Extract CC Switch model name (e.g., deepseek-v4-pro[1m])
+            const modelMatch = config.match(/"ANTHROPIC_MODEL":"([^"]+)"/);
+            if (modelMatch) _modelOverrides.set('deepseek', modelMatch[1]);
+            stmt.free(); sqlDb.close();
+            return keyMatch[1];
+          }
         }
         stmt.free();
       }
@@ -196,9 +204,10 @@ export class AIProxy {
 
     try {
       const stream = await client.chat.completions.create({
-        model: model.id === 'kimi' ? 'moonshot-v1-8k' :
-               model.id === 'deepseek' ? 'deepseek-chat' :
-               model.id === 'codex' ? 'gpt-4o' : 'gpt-4o',
+        model: _modelOverrides.get(model.id) ||
+               (model.id === 'kimi' ? 'moonshot-v1-8k' :
+                model.id === 'deepseek' ? 'deepseek-chat' :
+                model.id === 'codex' ? 'gpt-4o' : 'gpt-4o'),
         messages: [
           ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
           { role: 'user' as const, content: query },
