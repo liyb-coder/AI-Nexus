@@ -85,11 +85,8 @@ function waitForBackend(retries = 15) {
   check();
 }
 
-// ── Create window (guarded against multiple calls) ──
-let windowCreated = false;
+// ── Create window ──
 function createWindow() {
-  if (windowCreated || mainWindow) return;
-  windowCreated = true;
   mainWindow = new BrowserWindow({
     width: 1440, height: 900, minWidth: 900, minHeight: 600,
     title: 'AI Nexus 汇智', show: false,
@@ -99,7 +96,7 @@ function createWindow() {
   const url = isDev ? 'http://localhost:3000' : `http://127.0.0.1:${FRONTEND_PORT}`;
   mainWindow.loadURL(url);
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.on('closed', () => { mainWindow = null; windowCreated = false; });
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 // ── App lifecycle ──
